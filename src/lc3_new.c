@@ -18,7 +18,6 @@
 #define MEMORY_MAX (1 << 16)    //lc-3 memory has 65.536 memory locations
 uint16_t memory[MEMORY_MAX];
 
-
 /* -- Registers -- :
     - is a slot for storing a single value on the CPU
     - for a CPU to work with a piece of data, it has to be in one of the registers
@@ -44,13 +43,11 @@ typedef enum {
 }Reg;
 uint16_t registers[NUM_OF_REGISTERS];   //10 registers in total, each one is 16 bits
 
-
 /* -- Memory Mapped Registers -- */
 typedef enum {
     KBSR = 0xFE00,  // keyboard status
     KBDR = 0xFE02   // keyboard data
 }MMR;
-
 
 /* -- Condition flags -- */
 typedef enum {
@@ -58,7 +55,6 @@ typedef enum {
     FL_ZRO = 1 << 1, // Z
     FL_NEG = 1 << 2  // N
 } Cond_Flag;
-
 
 /* -- Instruction set -- :
     - An instruction is a command which tells the CPU to do some task, such as add two numbers. 
@@ -83,7 +79,6 @@ typedef enum {
     OP_TRAP		// execute trap
 } Opcodes;
 
-
 /* -- Trap Codes -- */
 typedef enum {
     TRAP_GETC  = 0x20,
@@ -94,10 +89,8 @@ typedef enum {
     TRAP_HALT  = 0x25
 }Trap;
 
-
 /* ----- Input buffering ----- */
 struct termios original_tio;
-
 void disable_input_buffering() {
     tcgetattr(STDIN_FILENO, &original_tio);
     struct termios new_tio = original_tio;
@@ -121,14 +114,12 @@ uint16_t check_key() {
 	return select(1, &readfds, NULL, NULL, &timeout) != 0;
 }
 
-
 /* ----- handle interrupt ----- */
 void handle_interrupt(int signal) {
     restore_input_buffering();
     printf("\n");
     exit(-2);
 }
-
 
 /* ----- sign extend v1 and v2 ----- */
 uint16_t sign_extend(uint16_t x, int bit_count) {
@@ -148,12 +139,10 @@ uint16_t my_sign_extend(uint16_t imm) {
 	return imm;
 }
 
-
 /* ----- swap ----- */
 uint16_t swap16(uint16_t x) {
     return (x << 8) | (x >> 8);
 }
-
 
 /* ----- update flags ----- */
 void update_flags(uint16_t reg) {
@@ -166,7 +155,6 @@ void update_flags(uint16_t reg) {
         registers[R_COND] = FL_POS;
     }
 }
-
 
 /* ----- Read image file ----- */
 void read_image_file(FILE *file) {  //reading an LC-3 program into memory
@@ -195,7 +183,6 @@ int read_image(const char *image_path) {
     return 1;
 }
 
-
 /* ----- Memory access ----- */
 void mem_write(uint16_t address, uint16_t val) {
     memory[address] = val;
@@ -213,7 +200,6 @@ uint16_t mem_read(uint16_t address) {
 
     return memory[address];
 }
-
 
 /* ----- Trap functions ----- */
 void trap_getc() {
@@ -304,7 +290,7 @@ int main(int argc, const char* argv[]) {
                     uint16_t imm5 = my_sign_extend(instruction & 0x1F);
                     registers[dr_reg] = registers[sr1_reg] + imm5;   //so this actually takes from the general register that corresponds with the sr1_reg value position. Ex: inside the instruction, on SR1 bits, we can find a position number, such as 1, which represents our R1 general purpose register.
                                                                      //Inside this R1 register is actually the number that we want to add read from the memory. That is why we get and store the value on register
-                } else {                       //register mode
+                } else { //register mode
                     uint16_t sr2_reg = instruction & 0x7;
                     registers[dr_reg] = registers[sr1_reg] + registers[sr2_reg];
                 }
